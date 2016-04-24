@@ -71,7 +71,17 @@ function run_picture_gallery() {
 	$plugin = new Picture_Gallery();
 	$plugin->run();
 
-	
+	add_action( 'admin_menu', 'picture_gallery_custom_admin_menu' );
+}
+
+function picture_gallery_custom_admin_menu() {
+    add_options_page(
+        'Picture Gallery',
+        'Picture Gallery',
+        'manage_options',
+        'wporg-plugin',
+        'wporg_options_page'
+    );
 }
 
 run_picture_gallery();
