@@ -84,6 +84,35 @@ function picture_gallery_custom_admin_menu() {
     );
 }
 
+/*
+  Option page - admin backend to allow users to upload images and either make new categories or 
+  assign current ones to upoaded images.
+*/
+function wporg_options_page() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . "picture_category";
+
+    $query_categories = $wpdb->get_results( 'SELECT * FROM ' . $table_name);
+
+    $images = array();
+    foreach ( $query_categories->posts as $image ) {
+        $images[] = $image;
+    }
+
+?>
+
+    <div class="wrap">
+        <?= print_r($query_categories); ?>
+        <h2>My Plugin Options</h2>
+        <form id="featured_upload" method="post">
+            <input type="button" id="upload_image_button" value="Upload Image" />
+            <input id="upload_image" name="submit_my_image_upload" type="submit" value="Upload" />
+        </form>
+    </div>
+    
+    <?php
+}
+
 function be_attachment_field_credit( $form_fields, $post ) {
 
       $form_fields['Category'] = array(
