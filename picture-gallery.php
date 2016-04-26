@@ -92,11 +92,27 @@ function wporg_options_page() {
     global $wpdb;
     $table_name = $wpdb->prefix . "picture_category";
 
-    $query_categories = $wpdb->get_results( 'SELECT * FROM ' . $table_name);
+    $query_categories = $wpdb->get_results( 'SELECT name FROM ' . $table_name);
 
     $images = array();
     foreach ( $query_categories->posts as $image ) {
         $images[] = $image;
+    }
+
+    //If the category is set and it is a new category, it will write to the database
+    if(isset($_POST['category']))
+    {
+        //Escapes for testing purposes
+        ?>
+        <div>category is set and is <?= $_POST['category'] ?></div>
+        <?php
+        $wpdb->insert( 
+            $table_name, 
+                array( 
+                    'time' => current_time( 'mysql' ), 
+                    'name' => strtoupper($_POST['category']),
+                ) 
+        );
     }
 
 ?>
@@ -106,7 +122,8 @@ function wporg_options_page() {
         <h2>My Plugin Options</h2>
         <form id="featured_upload" method="post">
             <input type="button" id="upload_image_button" value="Upload Image" />
-            <input id="upload_image" name="submit_my_image_upload" type="submit" value="Upload" />
+            <input type="text" name="category" />
+            <input type="submit" value="Submit">
         </form>
     </div>
     
