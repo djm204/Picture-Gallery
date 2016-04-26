@@ -106,6 +106,36 @@ function wporg_options_page() {
         ?>
         <div>category is set and is <?= $_POST['category'] ?></div>
         <?php
+
+        //File upload testing
+        $uploaddir = wp_upload_dir();
+        $file = $_FILES["fileToUpload"]["name"];
+        $uploadfile = $uploaddir['path'] . '/' . basename( $file );
+        
+        wp_handle_upload($_FILES["fileToUpload"]);
+        $filename = basename( $uploadfile );
+
+        $wp_filetype = wp_check_filetype(basename($filename), null );
+
+        $attachment = array(
+            'post_mime_type' => $wp_filetype['type'],
+            'post_title' => preg_replace('/\.[^.]+$/', '', $filename),
+            'post_content' => '',
+            'post_status' => 'inherit',
+            'menu_order' => $_i + 1000
+        );
+        $attach_id = wp_insert_attachment( $attachment, $uploadfile );
+
+        // Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
+        require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+        // Generate the metadata for the attachment, and update the database record.
+        $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
+        wp_update_attachment_metadata( $attach_id, $attach_data );
+        
+        set_post_thumbnail( 0, $attach_id );
+
+
         $wpdb->insert( 
             $table_name, 
                 array( 
