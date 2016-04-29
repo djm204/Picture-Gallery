@@ -25,7 +25,7 @@ class Picture_Gallery_Activator {
 	/**
 	 * Activates the Plugin and writes picture category database
 	 *
-	 * 
+	 * Long Description.
 	 *
 	 * @since    1.0.0
 	 */
@@ -46,6 +46,10 @@ class Picture_Gallery_Activator {
 
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		dbDelta( $sql );
+
+		require_once plugin_dir_path( __FILE__ ) . 'includes/class-picture-gallery-custom-fields.php';
+
+		
 	}
 
 }
