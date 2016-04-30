@@ -88,12 +88,17 @@ function wporg_options_page() {
     global $wpdb;
     $table_name = $wpdb->prefix . "picture_category";
 
-    $query_categories = $wpdb->get_results( 'SELECT name FROM ' . $table_name);
-
-    $images = array();
-    foreach ( $query_categories->posts as $image ) {
-        $images[] = $image;
+    if ( !current_user_can( 'manage_options' ) )  {
+        wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
     }
+
+    if(isset($_POST['delete_category']))
+    {
+        $wpdb->delete( $table_name, array( 'id' => $_POST['delete_category'] ), array( '%d' ) );
+    }
+
+    //Grabs categories data from the database
+    $query_categories = $wpdb->get_results( 'SELECT id, name FROM ' . $table_name);
 
     if(isset($_POST['category']))
     {   
@@ -160,11 +165,26 @@ function wporg_options_page() {
 ?>
 
     <div class="wrap">
+        <?= print_r($images); ?>
         <?= print_r($query_categories); ?>
+        <form method="post">
+
+            <select name="delete_category">
+                <?php foreach ( $query_categories as $key=>$category ) : ?>
+                <option value='<?= $category->id ?>'><?= $category->name?></option>
+                <? endforeach ?>
+            </select>
+            <input type="submit" value="Submit">
+        </form>
         <div><?= $error_text; ?></div>
         <h2>My Plugin Options</h2>
         <form id="featured_upload" method="post" enctype="multipart/form-data">
             <input type="file" name="fileToUpload" id="fileToUpload" />
+            <select>
+                <?php foreach ( $query_categories as $key=>$category ) : ?>
+                <option value='<?= $category->name ?>'><?= $category->name?></option>
+                <? endforeach ?>
+            </select>
             <input type="text" name="category" />
             <input type="submit" value="Submit">
         </form>
@@ -172,6 +192,34 @@ function wporg_options_page() {
     
     <?php
 }
+
+function be_attachment_field_credit( $form_fields, $post ) {
+
+      $form_fields['Category'] = array(
+
+          'label' => 'Image Category',
+
+          'input' => 'text',
+
+          'value' => get_post_meta( $post->ID, 'Category', true ),
+
+          'helps' => 'Will be displayed under appropriate gallery category if selected');
+
+      return $form_fields;
+}
+
+add_filter( 'attachment_fields_to_edit', 'be_attachment_field_credit', 10, 2 );
+
+function be_attachment_field_credit_save( $post, $attachment ) {
+      if( isset( $attachment['Category'] ) )
+          update_post_meta( $post['ID'], 'Category', $attachment['Category'] );
+   
+      return $post;
+}
+
+
+add_filter( 'attachment_fields_to_save', 'be_attachment_field_credit_save', 10, 2 );
+
 
 run_picture_gallery();
 ?>
