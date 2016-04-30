@@ -28,5 +28,16 @@
 	 * Although scripts in the WordPress core, Plugins and Themes may be
 	 * practising this, we should strive to set a better example in our own work.
 	 */
+	$( window ).load(function() {
 
+		$('#fileToUpload').change(function() {
+	    var filename = $(this).val();
+	    var lastIndex = filename.lastIndexOf("\\");
+	    if (lastIndex >= 0) {
+	        filename = filename.substring(lastIndex + 1);
+	    }
+	    $('#fileName').val(filename);
+	    
+    });
+});
 })( jQuery );
