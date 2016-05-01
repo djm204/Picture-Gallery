@@ -15,7 +15,7 @@
  * @wordpress-plugin
  * Plugin Name:       Picture Gallery
  * Plugin URI:        http://wordpresstest-tpascal.rhcloud.com/
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
+ * Description:       Allows for upload of images and definition/deletion of gallery categories
  * Version:           1.0.0
  * Author:            Thomas Pascal
  * Author URI:        not available
