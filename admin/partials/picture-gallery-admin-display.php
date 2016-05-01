@@ -42,13 +42,47 @@
             require_once( ABSPATH . 'wp-admin/includes/image.php' );
             require_once( ABSPATH . 'wp-admin/includes/media.php' );
 
-            $upload_overrides = array( 'test_form' => false );
+            $allowed_image_types = array('jpeg' =>'image/jpeg', 'jpg' =>'image/jpg', 'gif' => 'image/gif', 'png' => 'image/png');
+
+            $upload_overrides = array( 'test_form' => false, 'mimes' => $allowed_image_types );
 
             $movefile = wp_handle_upload( $file, $upload_overrides );
 
             $error_text = '';
 
             if ( $movefile && ! isset( $movefile['error'] ) ) {
+
+                $description = '';
+
+                if(!empty($_POST['description']))
+                {
+                    $description = $_POST['description'];
+                    $description = sanitize_text_field($description);
+                }
+
+                $filename = basename( $_FILES['fileToUpload']['name'] );
+
+                $wp_filetype = wp_check_filetype(basename($filename), null );
+
+                $attachment = array(
+                    'post_mime_type' => $wp_filetype['type'],
+                    'post_title' => preg_replace('/\.[^.]+$/', '', $file['name']),
+                    'post_content' => $description,
+                    'post_status' => 'inherit',
+                    'menu_order' => $_i + 1000
+                );
+
+                
+                $attach_id = wp_insert_attachment( $attachment, $movefile['file'] );
+
+
+                // Generate the metadata for the attachment, and update the database record.
+                $attach_data = wp_generate_attachment_metadata( $attach_id, $movefile['url'] );
+                wp_update_attachment_metadata( $attach_id, $attach_data );
+                update_post_meta( $attach_id, 'Category', $category_name );
+                
+                set_post_thumbnail( $attach_id );
+
                 $error_text = "File is valid, and was successfully uploaded.\n";
             } else {
                 /**
@@ -57,37 +91,6 @@
                  */
                 $error_text = "There was an error: " . $movefile['error'];
             }
-
-            $description = '';
-
-            if(!empty($_POST['description']))
-            {
-                $description = $_POST['description'];
-                $description = sanitize_text_field($description);
-            }
-
-            $filename = basename( $_FILES['fileToUpload']['name'] );
-
-            $wp_filetype = wp_check_filetype(basename($filename), null );
-
-            $attachment = array(
-                'post_mime_type' => $wp_filetype['type'],
-                'post_title' => preg_replace('/\.[^.]+$/', '', $file['name']),
-                'post_content' => $description,
-                'post_status' => 'inherit',
-                'menu_order' => $_i + 1000
-            );
-
-            
-            $attach_id = wp_insert_attachment( $attachment, $movefile['file'] );
-
-
-            // Generate the metadata for the attachment, and update the database record.
-            $attach_data = wp_generate_attachment_metadata( $attach_id, $movefile['url'] );
-            wp_update_attachment_metadata( $attach_id, $attach_data );
-            update_post_meta( $attach_id, 'Category', $category_name );
-            
-            set_post_thumbnail( $attach_id );
         }
 
         $name_array = array();
@@ -127,7 +130,7 @@
     <h2>Upload a new image</h2>
     <form id="featured_upload" method="post" enctype="multipart/form-data">
         
-        <input type="file" name="fileToUpload" id="fileToUpload" /></br>
+        <input type="file" name="fileToUpload" id="fileToUpload" accept="image/*"/></br>
         <label for="fileName">File Name (Editable)</label></br>
         <input id="fileName" name="fileName" type="text" /></br>
         <select id="categorySelect">
@@ -136,11 +139,11 @@
             <option value='<?= $category->name ?>'><?= $category->name?></option>
             <? endforeach ?>
         </select></br>
-        <label for="category">Select category from above or write into field below</label></br>
+        <label for="category">Select category from above or write into field below</br>(You can add a category without uploading a file)</label></br>
         <input type="text" name="category" id="category"/></br>
         <label for="description">Write a description (Optional)</label></br>
         <textarea rows="3" cols="30" name="description" id="description"></textarea></br>
-        <input type="submit" value="Upload Image">
+        <input type="submit" value="Upload Image/Add Category">
     </form>
     <h3><?= $error_text; ?></h3>
 </div>
