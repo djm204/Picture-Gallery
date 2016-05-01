@@ -31,13 +31,19 @@
 	$( window ).load(function() {
 
 		$('#fileToUpload').change(function() {
-	    var filename = $(this).val();
-	    var lastIndex = filename.lastIndexOf("\\");
-	    if (lastIndex >= 0) {
-	        filename = filename.substring(lastIndex + 1);
-	    }
-	    $('#fileName').val(filename);
+		    var filename = $(this).val();
+		    var lastIndex = filename.lastIndexOf("\\");
+		    if (lastIndex >= 0) {
+		        filename = filename.substring(lastIndex + 1);
+		    }
+		    var split_filename = filename.split(".");
+		    $('#fileName').val(split_filename[0]);
 	    
-    });
+    	});
+
+    	$('#categorySelect').change(function() {
+    		var category = $( "#categorySelect" ).val();
+    		$('#category').val(category);
+    	});
 });
 })( jQuery );

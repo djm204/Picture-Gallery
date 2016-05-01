@@ -6,6 +6,9 @@
     global $wpdb;
     $table_name = $wpdb->prefix . "picture_category";
 
+    //Grabs categories data from the database
+    $query_categories = $wpdb->get_results( 'SELECT id, name FROM ' . $table_name);
+
     if(isset($_POST['delete_category']))
     {
         $wpdb->delete( $table_name, array( 'id' => $_POST['delete_category'] ), array( '%d' ) );
@@ -21,8 +24,6 @@
             $file = $_FILES["fileToUpload"];
             $user_input_file_name = $_POST['fileName'];
 
-            echo '' . print_r($file);
-
             $image_editor = wp_get_image_editor($file['tmp_name']);
 
             if (!is_wp_error($image_editor)) {
@@ -33,7 +34,6 @@
                 $file['name'] = sanitize_file_name($saved['file']);
             }
 
-            echo 'After change' . print_r($file);
 
             $uploaddir = wp_upload_dir();
             $uploadfile = $uploaddir['path'] . '/' . basename( $file['name'] );
@@ -84,14 +84,24 @@
             set_post_thumbnail( $attach_id );
         }
 
+        $name_array = array();
 
-        $wpdb->insert( 
-            $table_name, 
-                array( 
-                    'time' => current_time( 'mysql' ), 
-                    'name' => $category_name,
-                ) 
-        );
+        foreach ( $query_categories as $key=>$category )
+        {
+            array_push($name_array, $category->name);
+        }
+
+
+        if(!in_array($category_name, $name_array))
+        {
+            $wpdb->insert( 
+                $table_name, 
+                    array( 
+                        'time' => current_time( 'mysql' ), 
+                        'name' => $category_name,
+                    ) 
+            );
+        }
     }
 
     //Grabs categories data from the database
@@ -114,12 +124,13 @@
         
         <input type="file" name="fileToUpload" id="fileToUpload" />
         <input id="fileName" name="fileName" type="text" />
-        <select>
+        <select id="categorySelect">
+            <option value=''>Select Category</option>
             <?php foreach ( $query_categories as $key=>$category ) : ?>
             <option value='<?= $category->name ?>'><?= $category->name?></option>
             <? endforeach ?>
         </select>
-        <input type="text" name="category" />
+        <input type="text" name="category" id="category"/>
         <input type="submit" value="Submit">
     </form>
 </div>
