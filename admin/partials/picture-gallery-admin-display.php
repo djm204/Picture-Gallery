@@ -6,7 +6,7 @@
     global $wpdb;
     $table_name = $wpdb->prefix . "picture_category";
 
-    //Grabs categories data from the database
+    //Grabs categories data from the database for purpose of array comparison
     $query_categories = $wpdb->get_results( 'SELECT id, name FROM ' . $table_name);
 
     if(isset($_POST['delete_category']))
@@ -58,7 +58,13 @@
                 $error_text = "There was an error: " . $movefile['error'];
             }
 
+            $description = '';
 
+            if(!empty($_POST['description']))
+            {
+                $description = $_POST['description'];
+                $description = sanitize_text_field($description);
+            }
 
             $filename = basename( $_FILES['fileToUpload']['name'] );
 
@@ -67,7 +73,7 @@
             $attachment = array(
                 'post_mime_type' => $wp_filetype['type'],
                 'post_title' => preg_replace('/\.[^.]+$/', '', $file['name']),
-                'post_content' => '',
+                'post_content' => $description,
                 'post_status' => 'inherit',
                 'menu_order' => $_i + 1000
             );
@@ -104,7 +110,7 @@
         }
     }
 
-    //Grabs categories data from the database
+    //Grabs any updated category data from the database for display on the page
     $query_categories = $wpdb->get_results( 'SELECT id, name FROM ' . $table_name);
 ?>
 
@@ -118,21 +124,25 @@
         </select>
         <input type="submit" value="Delete Category">
     </form>
-    <div><?= $error_text; ?></div>
     <h2>Upload a new image</h2>
     <form id="featured_upload" method="post" enctype="multipart/form-data">
         
-        <input type="file" name="fileToUpload" id="fileToUpload" />
-        <input id="fileName" name="fileName" type="text" />
+        <input type="file" name="fileToUpload" id="fileToUpload" /></br>
+        <label for="fileName">File Name (Editable)</label></br>
+        <input id="fileName" name="fileName" type="text" /></br>
         <select id="categorySelect">
             <option value=''>Select Category</option>
             <?php foreach ( $query_categories as $key=>$category ) : ?>
             <option value='<?= $category->name ?>'><?= $category->name?></option>
             <? endforeach ?>
-        </select>
-        <input type="text" name="category" id="category"/>
-        <input type="submit" value="Submit">
+        </select></br>
+        <label for="category">Select category from above or write into field below</label></br>
+        <input type="text" name="category" id="category"/></br>
+        <label for="description">Write a description (Optional)</label></br>
+        <textarea rows="3" cols="30" name="description" id="description"></textarea></br>
+        <input type="submit" value="Upload Image">
     </form>
+    <h3><?= $error_text; ?></h3>
 </div>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
