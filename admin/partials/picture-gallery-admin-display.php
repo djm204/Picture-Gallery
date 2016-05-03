@@ -11,7 +11,13 @@
 
     if(isset($_POST['delete_category']))
     {
-        $wpdb->delete( $table_name, array( 'id' => $_POST['delete_category'] ), array( '%d' ) );
+        $wpdb->query( $wpdb->prepare( 
+            "
+                DELETE FROM $table_name
+                WHERE id = %d
+            ",
+            $_POST['delete_category'] 
+        ) );
     }
 
     if(!empty($_POST['category']))
@@ -80,8 +86,6 @@
                 $attach_data = wp_generate_attachment_metadata( $attach_id, $movefile['url'] );
                 wp_update_attachment_metadata( $attach_id, $attach_data );
                 update_post_meta( $attach_id, 'Category', $category_name );
-                
-                set_post_thumbnail( $attach_id );
 
                 $error_text = "File is valid, and was successfully uploaded.\n";
             } else {
@@ -103,13 +107,15 @@
 
         if(!in_array($category_name, $name_array))
         {
-            $wpdb->insert( 
-                $table_name, 
-                    array( 
-                        'time' => current_time( 'mysql' ), 
-                        'name' => $category_name,
-                    ) 
-            );
+            $wpdb->query( $wpdb->prepare( 
+                "
+                    INSERT INTO $table_name
+                    ( time, name )
+                    VALUES ( %s, %s )
+                ",
+                current_time( 'mysql' ), 
+                $category_name 
+            ) );
         }
     }
 
@@ -147,5 +153,3 @@
     </form>
     <h3><?= $error_text; ?></h3>
 </div>
-
-<!-- This file should primarily consist of HTML with a little bit of PHP. -->
