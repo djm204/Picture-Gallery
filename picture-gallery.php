@@ -113,8 +113,41 @@ function be_attachment_field_credit_save( $post, $attachment ) {
       return $post;
 }
 
-
 add_filter( 'attachment_fields_to_save', 'be_attachment_field_credit_save', 10, 2 );
+
+function picture_gallery_display( $atts ){
+    global $wpdb;
+    $table_name = $wpdb->prefix . "picture_category";
+    $query_categories = $wpdb->get_results( 'SELECT name FROM ' . $table_name . ' ORDER BY time DESC');
+
+    $category_names_array = array();
+
+    foreach ( $query_categories as $key=>$category )
+    {
+      array_push($category_names_array, $category->name );
+    }
+
+    $images = new WP_Query( array( 'post_type' => 'attachment', 'post_status' => 'inherit', 'post_mime_type' => 'image' , 'posts_per_page' => -1 ) );
+
+    if( $images->have_posts() ){
+      while( $images->have_posts() ) {
+        $images->the_post();
+        $img_src = wp_get_attachment_image_src(get_the_ID(), 'original');
+        $image_category = get_post_field('Category', get_the_ID());
+        echo '<p>' . $image_category . '</p>';
+
+        if(in_array($image_category, $category_names_array))
+        {
+          $category_array[$image_category][] = $img_src[0];
+        }
+      } 
+    }
+    ?>
+
+    <?php
+}
+
+add_shortcode( 'display_picture_gallery', 'picture_gallery_display' );
 
 
 run_picture_gallery();
