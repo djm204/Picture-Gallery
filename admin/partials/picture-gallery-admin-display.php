@@ -123,33 +123,72 @@
     $query_categories = $wpdb->get_results( 'SELECT id, name FROM ' . $table_name);
 ?>
 
+<style>
+.form {
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    width:60%;
+}
+
+.form, .form-input {
+    border: 1px solid #aaa !important;
+}
+
+.form, .form select, .form input, .form textarea {
+    margin-bottom: 5px;
+    border-radius: 3px;
+}
+
+.form input, .form select, .form textarea {
+    width: 95%;
+}
+
+fieldset {
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid #aaa;
+    padding: 5px;
+}
+
+@media screen and (max-width: 580px) {
+    .form {
+        width: 95%;
+        margin: 0px auto;
+    }
+}
+</style>
+
 <div class="wrap">
-    <form method="post">
-        <h3>Select a category you wish to delete</h3>
-        <select name="delete_category">
+    <form class="form" method="post">
+        <h3>Delete a category</h3>
+        <select class="form-input" name="delete_category">
+            <option value=''>Select Image Category</option>
             <?php foreach ( $query_categories as $key=>$category ) : ?>
             <option value='<?= $category->id ?>'><?= $category->name?></option>
             <? endforeach ?>
         </select>
-        <input type="submit" value="Delete Category">
+        <input type="submit" class="button-primary" value="Delete Category">
     </form>
-    <h2>Upload a new image</h2>
-    <form id="featured_upload" method="post" enctype="multipart/form-data">
-        
-        <input type="file" name="fileToUpload" id="fileToUpload" accept="image/*"/></br>
-        <label for="fileName">File Name (Editable)</label></br>
-        <input id="fileName" name="fileName" type="text" /></br>
-        <select id="categorySelect">
-            <option value=''>Select Category</option>
+    <form id="featured_upload" class="form" method="post" enctype="multipart/form-data">
+        <h3>Upload a new image and/or add category</h3>
+        <fieldset>
+            <legend>File Upload (Not required to add category)</legend>
+            <input type="file" name="fileToUpload" id="fileToUpload" accept="image/*" /></br>
+            <label for="fileName">Edit file name below if desired</label></br>
+            <input id="fileName" name="fileName" type="text" class="form-input" /></br>
+            <label for="description">Write a description (Optional)</label></br>
+            <textarea rows="3" cols="30" name="description" id="description" class="form-input"></textarea></br>
+            <select id="categorySelect" class="form-input">
+            <option value=''>Select Image Category</option>
             <?php foreach ( $query_categories as $key=>$category ) : ?>
             <option value='<?= $category->name ?>'><?= $category->name?></option>
             <? endforeach ?>
         </select></br>
-        <label for="category">Select category from above or write into field below</br>(You can add a category without uploading a file)</label></br>
-        <input type="text" name="category" id="category"/></br>
-        <label for="description">Write a description (Optional)</label></br>
-        <textarea rows="3" cols="30" name="description" id="description"></textarea></br>
-        <input type="submit" value="Upload Image/Add Category">
+        </fieldset>
+        <label for="category">Select Category From Above or Enter New Category</label></br>
+        <input type="text" name="category" id="category" class="form-input" /></br>
+        <input type="submit" class="button-primary" value="Upload Image/Add Category">
     </form>
     <h3><?= $error_text; ?></h3>
 </div>

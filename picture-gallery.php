@@ -116,7 +116,9 @@ function be_attachment_field_credit_save( $post, $attachment ) {
 }
 
 add_filter( 'attachment_fields_to_save', 'be_attachment_field_credit_save', 10, 2 );
+// End adding category fields
 
+// Shortcode for picture gallery
 function picture_gallery_display( $atts ){
     include 'picture-gallery-carousel-display.php';
 }
