@@ -159,6 +159,10 @@ fieldset {
 }
 </style>
 
+<h2><?= $error_text; ?></h2>
+
+<h3>Write this onto a page you wish to include the gallery: [display_picture_gallery]</h3>
+
 <div class="wrap">
     <form class="form" method="post">
         <h3>Delete a category</h3>
@@ -190,5 +194,4 @@ fieldset {
         <input type="text" name="category" id="category" class="form-input" /></br>
         <input type="submit" class="button-primary" value="Upload Image/Add Category">
     </form>
-    <h3><?= $error_text; ?></h3>
 </div>
