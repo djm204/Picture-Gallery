@@ -4,6 +4,7 @@
     $query_categories = $wpdb->get_results( 'SELECT name FROM ' . $table_name . ' ORDER BY time DESC');
 
     $category_names_array = array();
+    $category_array = array();
 
     foreach ( $query_categories as $key=>$category )
     {
@@ -65,7 +66,6 @@
 .thumnail-carousel:before{
   content: "";
   display: block;
-  padding-top: 22%; 
 }
 .thumnail-carousel .item{
   position:  absolute;
@@ -81,6 +81,9 @@
 
 <div class="container">
   <div class="row">
+    <?php if(empty($category_array)) : ?>
+      <p>No images assigned to any categories</p>
+    <?php else : ?>
     <div class="col-sm-8">
 
       <?php $current_category_index = 0; ?>
@@ -165,6 +168,8 @@
       </nav>
     </div> <!-- /col-sm-6 -->
   </div> <!-- /row -->
+  <?php endif ?>
+  </div>
 </div> <!-- /container -->
 
 <script type="text/javascript">
