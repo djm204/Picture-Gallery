@@ -65,7 +65,7 @@
 .thumnail-carousel:before{
   content: "";
   display: block;
-  padding-top: 22%;  /* initial ratio of 1:1*/
+  padding-top: 22%; 
 }
 .thumnail-carousel .item{
   position:  absolute;
@@ -73,6 +73,9 @@
   left: 0;
   bottom: 0;
   right: 0;
+}
+.carousel-control {
+  width: 6% !important;
 }
 </style>
 

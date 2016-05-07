@@ -20,102 +20,110 @@
         ) );
     }
 
-    if(!empty($_POST['category']))
-    {   
-        $category_name = strtoupper($_POST['category']);
-        $category_name = sanitize_text_field($category_name);
+    $error_text = '';
+    if(isset($_POST['category']))
+    {
+        if(!empty($_POST['category']))
+        {   
+            $category_name = strtoupper($_POST['category']);
+            $category_name = sanitize_text_field($category_name);
 
-        if(!empty($_FILES["fileToUpload"]["name"]))
-        {
-            $file = $_FILES["fileToUpload"];
-            $user_input_file_name = $_POST['fileName'];
+            if(!empty($_FILES["fileToUpload"]["name"]))
+            {
+                $file = $_FILES["fileToUpload"];
+                $user_input_file_name = $_POST['fileName'];
 
-            $image_editor = wp_get_image_editor($file['tmp_name']);
+                $image_editor = wp_get_image_editor($file['tmp_name']);
 
-            if (!is_wp_error($image_editor)) {
-                // Generate a new filename with suffix aftered by user
-                $saved = $image_editor->save($user_input_file_name,$file['type']);
+                if (!is_wp_error($image_editor)) {
+                    // Generate a new filename with suffix aftered by user
+                    $saved = $image_editor->save($user_input_file_name,$file['type']);
 
-                // Try to alter the original $file and inject the new name and path for our new image
-                $file['name'] = sanitize_file_name($saved['file']);
-            }
-
-
-            $uploaddir = wp_upload_dir();
-            $uploadfile = $uploaddir['path'] . '/' . basename( $file['name'] );
-
-            require_once( ABSPATH . 'wp-admin/includes/file.php' );
-            require_once( ABSPATH . 'wp-admin/includes/image.php' );
-            require_once( ABSPATH . 'wp-admin/includes/media.php' );
-
-            $allowed_image_types = array('jpeg' =>'image/jpeg', 'jpg' =>'image/jpg', 'gif' => 'image/gif', 'png' => 'image/png');
-
-            $upload_overrides = array( 'test_form' => false, 'mimes' => $allowed_image_types );
-
-            $movefile = wp_handle_upload( $file, $upload_overrides );
-
-            $error_text = '';
-
-            if ( $movefile && ! isset( $movefile['error'] ) ) {
-
-                $description = '';
-
-                if(!empty($_POST['description']))
-                {
-                    $description = $_POST['description'];
-                    $description = sanitize_text_field($description);
+                    // Try to alter the original $file and inject the new name and path for our new image
+                    $file['name'] = sanitize_file_name($saved['file']);
                 }
 
-                $filename = basename( $_FILES['fileToUpload']['name'] );
 
-                $wp_filetype = wp_check_filetype(basename($filename), null );
+                $uploaddir = wp_upload_dir();
+                $uploadfile = $uploaddir['path'] . '/' . basename( $file['name'] );
 
-                $attachment = array(
-                    'post_mime_type' => $wp_filetype['type'],
-                    'post_title' => preg_replace('/\.[^.]+$/', '', $file['name']),
-                    'post_content' => $description,
-                    'post_status' => 'inherit',
-                    'menu_order' => $_i + 1000
-                );
+                require_once( ABSPATH . 'wp-admin/includes/file.php' );
+                require_once( ABSPATH . 'wp-admin/includes/image.php' );
+                require_once( ABSPATH . 'wp-admin/includes/media.php' );
+
+                $allowed_image_types = array('jpeg' =>'image/jpeg', 'jpg' =>'image/jpg', 'gif' => 'image/gif', 'png' => 'image/png');
+
+                $upload_overrides = array( 'test_form' => false, 'mimes' => $allowed_image_types );
+
+                $movefile = wp_handle_upload( $file, $upload_overrides );
 
                 
-                $attach_id = wp_insert_attachment( $attachment, $movefile['file'] );
+
+                if ( $movefile && ! isset( $movefile['error'] ) ) {
+
+                    $description = '';
+
+                    if(!empty($_POST['description']))
+                    {
+                        $description = $_POST['description'];
+                        $description = sanitize_text_field($description);
+                    }
+
+                    $filename = basename( $_FILES['fileToUpload']['name'] );
+
+                    $wp_filetype = wp_check_filetype(basename($filename), null );
+
+                    $attachment = array(
+                        'post_mime_type' => $wp_filetype['type'],
+                        'post_title' => preg_replace('/\.[^.]+$/', '', $file['name']),
+                        'post_content' => $description,
+                        'post_status' => 'inherit',
+                        'menu_order' => $_i + 1000
+                    );
+
+                    
+                    $attach_id = wp_insert_attachment( $attachment, $movefile['file'] );
 
 
-                // Generate the metadata for the attachment, and update the database record.
-                $attach_data = wp_generate_attachment_metadata( $attach_id, $movefile['url'] );
-                wp_update_attachment_metadata( $attach_id, $attach_data );
-                update_post_meta( $attach_id, 'Category', $category_name );
+                    // Generate the metadata for the attachment, and update the database record.
+                    $attach_data = wp_generate_attachment_metadata( $attach_id, $movefile['url'] );
+                    wp_update_attachment_metadata( $attach_id, $attach_data );
+                    update_post_meta( $attach_id, 'Category', $category_name );
 
-                $error_text = "File is valid, and was successfully uploaded.\n";
-            } else {
-                /**
-                 * Error generated by _wp_handle_upload()
-                 * @see _wp_handle_upload() in wp-admin/includes/file.php
-                 */
-                $error_text = "There was an error: " . $movefile['error'];
+                    $error_text = '<h2 style="color:green">File is valid, and was successfully uploaded.</h2>';
+                } else {
+                    /**
+                     * Error generated by _wp_handle_upload()
+                     * @see _wp_handle_upload() in wp-admin/includes/file.php
+                     */
+                    $error_text = '<h2 style="color:red">There was an error: ' . $movefile['error'] . '</h2>';
+                }
+            }
+
+            $name_array = array();
+
+            foreach ( $query_categories as $key=>$category )
+            {
+                array_push($name_array, $category->name);
+            }
+
+
+            if(!in_array($category_name, $name_array))
+            {
+                $wpdb->query( $wpdb->prepare( 
+                    "
+                        INSERT INTO $table_name
+                        ( time, name )
+                        VALUES ( %s, %s )
+                    ",
+                    current_time( 'mysql' ), 
+                    $category_name 
+                ) );
             }
         }
-
-        $name_array = array();
-
-        foreach ( $query_categories as $key=>$category )
+        else
         {
-            array_push($name_array, $category->name);
-        }
-
-
-        if(!in_array($category_name, $name_array))
-        {
-            $wpdb->query( $wpdb->prepare( 
-                "
-                    INSERT INTO $table_name
-                    ( time, name )
-                    VALUES ( %s, %s )
-                ",
-                current_time( 'mysql' ), 
-                $category_name 
-            ) );
+            $error_text = '<h2 style="color:red">You did not include a category: Image upload stopped</h2>';
         }
     }
 
@@ -159,9 +167,7 @@ fieldset {
 }
 </style>
 
-<h2><?= $error_text; ?></h2>
-
-<h3>Write this onto a page you wish to include the gallery: [display_picture_gallery]</h3>
+<?= $error_text; ?>
 
 <div class="wrap">
     <form class="form" method="post">
