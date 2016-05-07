@@ -66,6 +66,7 @@
 .thumnail-carousel:before{
   content: "";
   display: block;
+  padding-top: 22%;
 }
 .thumnail-carousel .item{
   position:  absolute;
