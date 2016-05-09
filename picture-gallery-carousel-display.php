@@ -86,8 +86,32 @@
       <p>No images assigned to any categories</p>
     <?php else : ?>
     <div class="col-sm-8">
+        <?php $current_category_index = 0; ?>
+        <?php foreach($category_array as $key => $value) : ?>
+            <?php $current_image_index = 0; ?>
+        <div id="carousel<?= preg_replace("/[\s]/", "-", $key) ?>" class="carousel slide" data-ride="carousel" data-interval="0">
+            <div class="carousel-inner">
+                <?php foreach($value as $image_source_value) : ?>
+                    <div class="item <?php if ($current_image_index == 0) { echo 'active';} ?>">
+                      
+                        <img src="<?= $image_source_value[0] ?>" />
+                      
+                        <div class="carousel-caption description-box">
+                          <p><?= $image_source_value[1] ?></p>
+                        </div>
+                    <?php $current_image_index ++; ?>
+                    </div>
+                <?php endforeach ?>
+            </div>
+        </div> 
 
-      <?php $current_category_index = 0; ?>
+        <?php
+            $current_category_index ++;
+        ?>
+
+        <?php endforeach ?>
+
+        <?php $current_category_index = 0; ?>
         <?php foreach($category_array as $key => $value) : ?>
             <?php $current_image_index = 0; ?>
             <div class="clearfix">
@@ -123,31 +147,6 @@
             $current_category_index ++;
         ?>
         </div><!-- /clearfix -->
-
-        <?php endforeach ?>
-    
-        <?php $current_category_index = 0; ?>
-        <?php foreach($category_array as $key => $value) : ?>
-            <?php $current_image_index = 0; ?>
-        <div id="carousel<?= preg_replace("/[\s]/", "-", $key) ?>" class="carousel slide" data-ride="carousel" data-interval="0">
-            <div class="carousel-inner">
-                <?php foreach($value as $image_source_value) : ?>
-                    <div class="item <?php if ($current_image_index == 0) { echo 'active';} ?>">
-                      
-                        <img src="<?= $image_source_value[0] ?>" />
-                      
-                        <div class="carousel-caption description-box">
-                          <p><?= $image_source_value[1] ?></p>
-                        </div>
-                    <?php $current_image_index ++; ?>
-                    </div>
-                <?php endforeach ?>
-            </div>
-        </div> 
-
-        <?php
-            $current_category_index ++;
-        ?>
 
         <?php endforeach ?>
     </div> <!-- /col-sm-6 -->
