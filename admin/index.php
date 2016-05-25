@@ -1,2 +1,1 @@
-<?php // Silence is golden ?>
-<button>Push</button>
+<?php // Silence is golden

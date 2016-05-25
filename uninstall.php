@@ -22,7 +22,7 @@
  * @link       not available
  * @since      1.0.0
  *
- * @package    Picture_Gallery
+ * @package    Spanish_Club_Forms
  */
 
 // If uninstall not called from WordPress, then exit.
