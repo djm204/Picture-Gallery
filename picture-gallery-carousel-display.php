@@ -78,10 +78,6 @@
 .carousel-control {
   width: 6% !important;
 }
-
-.displayed-image {
-  max-height: 370px !important;
-}
 </style>
 
 <div class="container">
@@ -98,7 +94,7 @@
                 <?php foreach($value as $image_source_value) : ?>
                     <div class="item <?php if ($current_image_index == 0) { echo 'active';} ?>">
                       
-                        <img class="displayed-image" src="<?= $image_source_value[0] ?>" />
+                        <img src="<?= $image_source_value[0] ?>" />
                       
                         <div class="carousel-caption description-box">
                           <p><?= $image_source_value[1] ?></p>
